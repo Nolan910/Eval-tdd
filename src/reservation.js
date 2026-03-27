@@ -31,6 +31,13 @@ export function createReservation(reservations, newReservation) {
     return reservations;
 }
 
+
+function isCancelable(reservation, requestDate, minHoursBefore = 48) {
+    const diffEnMs = reservation.start - requestDate;
+    const diffEnHours = diffEnMs / (1000 * 60 * 60);
+    return diffEnHours >= minHoursBefore;
+}
+
 // Annulation réservation
 export function cancelReservation(reservations, reservationId, requestDate) {
   const index = reservations.findIndex(r => r.id === reservationId);
@@ -42,13 +49,10 @@ export function cancelReservation(reservations, reservationId, requestDate) {
     const reservation = reservations[index];
 
     // Vérification 48h avant
-    const diffEnMs = reservation.start - requestDate;
-    const diffEnHours = diffEnMs / (1000 * 60 * 60);
-    if (diffEnHours < 48) {
+    if (!isCancelable(reservation, requestDate)) {
         throw new ValidationError("Cannot cancel reservation less than 48h before start");
     }
 
-    
     reservations.splice(index, 1);
     return reservations;
 }
