@@ -1,5 +1,5 @@
 import { describe, test, expect } from "@jest/globals";
-import { createReservation, cancelReservation } from "../src/reservation";
+import { createReservation, cancelReservation, getReservationsByDate } from "../src/reservation";
 import { ValidationError } from "../src/errors.js";
 
 describe("Given I try to create a reservation", () => {

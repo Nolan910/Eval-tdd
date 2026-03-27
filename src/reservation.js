@@ -4,6 +4,12 @@ function isClashing(existing, newRes) {
     return existing.some(r => !(newRes.start >= r.end || newRes.end <= r.start));
 }
 
+function isCancelable(reservation, requestDate, minHoursBefore = 48) {
+    const diffEnMs = reservation.start - requestDate;
+    const diffEnHours = diffEnMs / (1000 * 60 * 60);
+    return diffEnHours >= minHoursBefore;
+}
+
 // Création réservation
 export function createReservation(reservations, newReservation) {
     
@@ -31,13 +37,6 @@ export function createReservation(reservations, newReservation) {
     return reservations;
 }
 
-
-function isCancelable(reservation, requestDate, minHoursBefore = 48) {
-    const diffEnMs = reservation.start - requestDate;
-    const diffEnHours = diffEnMs / (1000 * 60 * 60);
-    return diffEnHours >= minHoursBefore;
-}
-
 // Annulation réservation
 export function cancelReservation(reservations, reservationId, requestDate) {
   const index = reservations.findIndex(r => r.id === reservationId);
@@ -55,4 +54,20 @@ export function cancelReservation(reservations, reservationId, requestDate) {
 
     reservations.splice(index, 1);
     return reservations;
+}
+
+// Rechcherche par date
+export function getReservationsByDate(reservations, searchDate) {
+     const result = [];
+
+    for (const r of reservations) {
+        // Recherche vide
+        if (!r.start || !r.end) continue; 
+
+        // Recherche couvre la date
+        if (searchDate >= r.start && searchDate <= r.end) {
+            result.push(r);
+        }
+    }
+    return result;
 }
