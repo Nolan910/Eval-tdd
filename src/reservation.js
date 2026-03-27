@@ -4,6 +4,7 @@ function isClashing(existing, newRes) {
     return existing.some(r => !(newRes.start >= r.end || newRes.end <= r.start));
 }
 
+// Création réservation
 export function createReservation(reservations, newReservation) {
     
     // Manque une date
@@ -28,4 +29,9 @@ export function createReservation(reservations, newReservation) {
 
     reservations.push(newReservation);
     return reservations;
+}
+
+// Annulation réservation
+export function cancelReservation() {
+  throw new Error("Not implemented yet");
 }

@@ -1,5 +1,6 @@
 import { describe, test, expect } from "@jest/globals";
-import { createReservation } from "../src/reservation";
+import { createReservation, cancelReservation } from "../src/reservation";
+import { ValidationError } from "../src/errors.js";
 
 describe("Given I try to create a reservation", () => {
     test("When reservation is valid, it is added", () => {
@@ -86,6 +87,27 @@ describe("Given I try to create a reservation", () => {
             start: new Date("2026-05-12"),
             end: new Date("2026-05-14")
         })).toThrow("Reservation ID already exists");
+    });
+
+});
+
+describe("Given I try to cancel a reservation", () => {
+    test("When cancellation is requested at least 48h before start", () => {
+        const reservations = [{ id: 1, name: "res1", start: new Date("2026-05-10T10:00:00"), end: new Date("2026-05-12") }];
+        const result = cancelReservation(reservations, 1, new Date("2026-05-08T10:00:00"));
+        expect(result.some(r => r.id === 1)).toBe(false);
+    });
+    
+    test("When reservation does not exist", () => {
+        const reservations = [ { id: 1, name: "res1", start: new Date("2026-05-10"), end: new Date("2026-05-12") }];
+        expect(() => cancelReservation(reservations, 2, new Date("2026-05-08")))
+            .toThrow(new ValidationError("Reservation does not exist"));
+    });
+
+    test("When cancellation is less than 48h before", () => {
+        const reservations = [{ id: 1, name: "res1", start: new Date("2026-05-10T10:00:00"), end: new Date("2026-05-12") }];
+        expect(() => cancelReservation(reservations, 1, new Date("2026-05-09T12:00:00")))
+            .toThrow(new ValidationError("Cannot cancel reservation less than 48h before start"));
     });
 
 });
