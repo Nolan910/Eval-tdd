@@ -32,6 +32,23 @@ export function createReservation(reservations, newReservation) {
 }
 
 // Annulation réservation
-export function cancelReservation() {
-  throw new Error("Not implemented yet");
+export function cancelReservation(reservations, reservationId, requestDate) {
+  const index = reservations.findIndex(r => r.id === reservationId);
+
+    // Existe
+    if (index === -1) {
+        throw new ValidationError("Reservation does not exist");
+    }
+    const reservation = reservations[index];
+
+    // Vérification 48h avant
+    const diffEnMs = reservation.start - requestDate;
+    const diffEnHours = diffEnMs / (1000 * 60 * 60);
+    if (diffEnHours < 48) {
+        throw new ValidationError("Cannot cancel reservation less than 48h before start");
+    }
+
+    
+    reservations.splice(index, 1);
+    return reservations;
 }
