@@ -1,5 +1,9 @@
 import { ValidationError } from "./errors.js";
 
+function isClashing(existing, newRes) {
+    return existing.some(r => !(newRes.start >= r.end || newRes.end <= r.start));
+}
+
 export function createReservation(reservations, newReservation) {
     
     // Manque une date
@@ -13,17 +17,13 @@ export function createReservation(reservations, newReservation) {
     }
     
     // Chevauchement de réservation
-    const clash = reservations.some(r => {
-        return !(newReservation.start >= r.end || newReservation.end <= r.start);
-    });
+    if (isClashing(reservations, newReservation)) {
+        throw new ValidationError("Reservation clash");
+    }
 
     // ID déjà existant
     if (reservations.some(r => r.id === newReservation.id)) {
         throw new ValidationError("Reservation ID already exists");
-    }
-
-    if (clash) {
-        throw new ValidationError("Reservation clash");
     }
 
     reservations.push(newReservation);
