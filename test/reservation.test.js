@@ -111,3 +111,36 @@ describe("Given I try to cancel a reservation", () => {
     });
 
 });
+
+describe("Given I try to search for reservations on a specific date", () => {
+
+    test("When no reservations exist, it returns empty", () => {
+        const reservations = [];
+        const result = getReservationsByDate(reservations, new Date("2026-05-09"));
+        expect(result.length).toBe(0);
+    });
+
+    test("When a reservation covers the searched date, it is returned", () => {
+        const reservations = [{ id: 1, name: "res1", start: new Date("2026-05-08"), end: new Date("2026-05-10") }];
+        const result = getReservationsByDate(reservations, new Date("2026-05-09"));
+        expect(result.some(r => r.id === 1)).toBe(true);
+    });
+
+    test("When a reservation does not cover the searched date, it is not returned", () => {
+        const reservations = [{ id: 1, name: "res1", start: new Date("2026-05-10"), end: new Date("2026-05-12") }];
+        const result = getReservationsByDate(reservations, new Date("2026-05-09"));
+        expect(result.length).toBe(0);
+    });
+
+    test("When multiple reservations overlap the searched date, all are returned", () => {
+        const reservations = [
+            { id: 1, name: "res1", start: new Date("2026-05-08"), end: new Date("2026-05-10") },
+            { id: 2, name: "res2", start: new Date("2026-05-09"), end: new Date("2026-05-11") },
+            { id: 3, name: "res3", start: new Date("2026-05-12"), end: new Date("2026-05-14") }
+        ];
+        const result = getReservationsByDate(reservations, new Date("2026-05-09"));
+        expect(result.map(r => r.id)).toEqual(expect.arrayContaining([1, 2]));
+        expect(result.some(r => r.id === 3)).toBe(false);
+    });
+
+});
