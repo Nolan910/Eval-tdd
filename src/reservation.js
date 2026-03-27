@@ -10,6 +10,10 @@ function isCancelable(reservation, requestDate, minHoursBefore = 48) {
     return diffEnHours >= minHoursBefore;
 }
 
+function isReservationActive(reservation, searchDate) {
+    return reservation.start && reservation.end && searchDate >= reservation.start && searchDate <= reservation.end;
+}
+
 // Création réservation
 export function createReservation(reservations, newReservation) {
     
@@ -58,16 +62,5 @@ export function cancelReservation(reservations, reservationId, requestDate) {
 
 // Rechcherche par date
 export function getReservationsByDate(reservations, searchDate) {
-     const result = [];
-
-    for (const r of reservations) {
-        // Recherche vide
-        if (!r.start || !r.end) continue; 
-
-        // Recherche couvre la date
-        if (searchDate >= r.start && searchDate <= r.end) {
-            result.push(r);
-        }
-    }
-    return result;
+    return reservations.filter(r => isReservationActive(r, searchDate));    
 }
